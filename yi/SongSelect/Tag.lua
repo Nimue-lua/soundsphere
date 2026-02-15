@@ -15,7 +15,7 @@ function Tag:new()
 		padding = {5, 20, 5, 20}
 	})
 
-	self.label = margin:add(Label(Fonts.Bold, 20, "LOADING..."))
+	self.label = margin:add(Label(Fonts:get("bold", 20), "LOADING..."))
 	self.label.color = Colors.text
 end
 

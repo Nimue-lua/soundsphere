@@ -5,13 +5,14 @@ local Rectangle = require("ui.view.Rectangle")
 local Fonts = require("yi.Fonts")
 local Colors = require("yi.Colors")
 local Images = require("yi.Images")
-local L = require("yi.L")
+local L = require("yi.Localization")
 local Tag = require("yi.SongSelect.Tag")
 local Cell = require("yi.SongSelect.Cell")
 local ChartSetList = require("yi.SongSelect.ChartSetList")
 local ChartGrid = require("yi.SongSelect.ChartGrid")
 local Button = require("yi.SongSelect.Button")
 local Text = require("ui.view.Text")
+local Slider = require("yi.views.Slider")
 
 local ImGuiSettings = require("ui.views.SettingsView")
 local ImGuiModifiers = require("ui.views.ModifierView")
@@ -40,8 +41,8 @@ local function TopInfo()
 			{Tag(), id = "format"},
 		},
 		{Node(), arrange = "flow_v",
-			{Label(Fonts.Black, 80, L.loading), color = Colors.text, id = "title"},
-			{Label(Fonts.Bold, 55, L.loading), y = -5, color = Colors.lines, id = "artist"},
+			{Label(Fonts:get("black", 72), L.loading), color = Colors.text, id = "title"},
+			{Label(Fonts:get("bold", 58), L.loading), y = -5, color = Colors.lines, id = "artist"},
 		}
 	}
 end
@@ -96,6 +97,18 @@ function SongSelect:new(ui)
 		self.ui:changeScreen(self.ui.ScreenName.Gameplay)
 	end
 
+	local scale_slider = Slider("UI Scale:", function ()
+			return self.ui.engine.height_scale
+		end,
+		function(v)
+			self.ui.engine.height_scale = v
+			self.ui.engine:updateRootDimensions()
+		end,
+		0.75,
+		2,
+		0.05
+	)
+
 	self.ids = layout(self, {
 		{Node(), info,
 			{Node(), arrange = "flow_v", child_gap = 20,
@@ -103,14 +116,19 @@ function SongSelect:new(ui)
 				{ChartGrid(self.select_model), id = "chart_grid", width = "100%", height = 70, stencil = true},
 				ChartInfo(),
 			},
-			{Label(Fonts.Bold, 20, "This game uses MiSans fonts, provided by Xiaomi Inc. under the MiSans Font Intellectual Property License Agreement."), color = {1 ,1 ,1, 1}},
+			{Label(Fonts:get("bold", 16), "This game uses MiSans fonts, provided by Xiaomi Inc. under the MiSans Font Intellectual Property License Agreement."), color = {1 ,1 ,1, 1}},
+			{ scale_slider },
 			{Node(), arrange = "flow_h", child_gap = 10,
-				{Button(open_config, Text(Fonts.Bold, 40, L.config)), height = 50},
+				{Button(open_config), height = 50,
+					{ Label(Fonts:get("bold", 16), "Config") }
+				}
+				--[[
 				{Button(open_mods, Text(Fonts.Bold, 40, L.mods)), height = 50},
 				{Button(open_inputs, Text(Fonts.Bold, 40, L.inputs)), height = 50},
 				{Button(open_skins, Text(Fonts.Bold, 40, L.skins)), height = 50},
 				{Button(open_gameplay, Text(Fonts.Bold, 40, L.gameplay)), height = 50},
 				{Button(play, Text(Fonts.Bold, 40, L.play), true), height = 50}
+				]]
 			}
 		},
 		{Node(), id = "third", width = "30%", stencil = true,

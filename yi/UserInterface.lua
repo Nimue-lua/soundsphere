@@ -5,7 +5,7 @@ local Engine = require("ui.Engine")
 
 local Fonts = require("yi.Fonts")
 local Images = require("yi.Images")
-local L = require("yi.L")
+local Localization = require("yi.Localization")
 local SongSelect = require("yi.SongSelect")
 local GameplayView = require("yi.GameplayView")
 local Background = require("yi.SongSelect.Background")
@@ -37,16 +37,14 @@ function UserInterface:new(game)
 	self.game = game
 
 	imgui_ctx.game = game
-	L:apply(require("yi.locales.en"))
-	L:apply(require("yi.locales.zh"))
-	Fonts:init()
+	Localization:apply(require("yi.locales.en"))
 	Images:init()
 end
 
 function UserInterface:load()
 	self.root = Node()
 	self.root.id = "root"
-	self.engine = Engine()
+	self.engine = Engine(1080)
 	self.engine:setRoot(self.root)
 
 	self.root:add(Background(self.game.backgroundModel))

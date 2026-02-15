@@ -10,6 +10,8 @@ local ChartGrid = ElasticList + {}
 function ChartGrid:new(select_model)
 	ElasticList.new(self)
 	self.select_model = select_model
+	self.font = Fonts:get("bold", 36)
+	self.font_small = Fonts:get("bold", 16)
 end
 
 ---@return yi.Chartview[]
@@ -84,13 +86,29 @@ function ChartGrid:drawItem(item, w, h, is_selected)
 	local difficulty = ("%0.01f"):format(item.difficulty or 0)
 	local mode = (item.inputmode or ""):gsub("key", "K"):gsub("scratch", "S")
 	local d = w / self.SelectedWidth
-	local scale = 0.35 * d
-	local font = Fonts.Bold
-	local oy = font:getHeight()
+	local font = self.font
 	love.graphics.setFont(font)
 	love.graphics.setColor(0, 0, 0, 1)
-	love.graphics.print(difficulty, w / 2, h / 2, 0, scale, scale, font:getWidth(difficulty) / 2, oy - 28)
-	love.graphics.print(mode, w / 2, h / 2, 0, scale * 0.6, scale * 0.6, font:getWidth(mode) / 2, 0)
+
+	love.graphics.print(
+		difficulty,
+		w / 2, h / 2,
+		0,
+		d, d,
+		font:getWidth(difficulty) / 2,
+		font:getHeight() - 15
+	)
+
+	local font_small = self.font_small
+	love.graphics.setFont(font_small)
+	love.graphics.print(
+		mode,
+		w / 2, h / 2 + 4,
+		0,
+		1, 1,
+		font_small:getWidth(mode) / 2,
+		0
+	)
 end
 
 return ChartGrid

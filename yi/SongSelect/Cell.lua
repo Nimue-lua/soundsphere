@@ -10,10 +10,10 @@ local Cell = Node + {}
 ---@param label string
 function Cell:new(label)
 	Node.new(self)
-	self:setHeight(60)
+	self:setHeight(70)
 	self:setWidth(140)
-	self.top_text = Text(Fonts.Bold, 20, label)
-	self.value_text = Text(Fonts.Bold, 40, "XXX")
+	self.top_text = Text(Fonts:get("regular", 16), label)
+	self.value_text = Text(Fonts:get("bold", 36), "XXX")
 end
 
 ---@param v string
