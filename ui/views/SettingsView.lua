@@ -290,7 +290,7 @@ end
 ---@type sphere.PackageManager
 local packageManager
 local function formatThemeName(pkg_name)
-	if pkg_name == "Default" then
+	if pkg_name == "Default" or pkg_name == "New" then
 		return pkg_name
 	end
 	local pkg = packageManager:getPackage(pkg_name)
