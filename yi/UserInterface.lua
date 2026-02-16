@@ -44,7 +44,7 @@ function UserInterface:load()
 	self.engine = Engine(1080)
 	self.engine:setRoot(self.root)
 	Resources:setDpi(self.engine.current_dpi)
-	self.root:add(Background(self.game.backgroundModel))
+	self.background = self.root:add(Background(self.game.backgroundModel))
 	self:changeScreen(ScreenName.SongSelect)
 end
 
@@ -56,8 +56,10 @@ function UserInterface:changeScreen(screen_name)
 
 	if screen_name == ScreenName.SongSelect then
 		self.screen = self.root:add(SongSelect(self))
+		self.background:setDim(0.5)
 	elseif screen_name == ScreenName.Gameplay then
 		self.screen = self.root:add(GameplayView(self))
+		self.background:setDim(0)
 	end
 
 	self.screen:enter()
