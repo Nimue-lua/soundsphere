@@ -4,12 +4,12 @@ local Colors = require("yi.Colors")
 local layout = require("yi.layout")
 
 ---@class yi.TabButton : view.Node
----@overload fun(icon_text_batch: love.TextBatch, label_text_batch: love.TextBatch, panel: yi.Panel, index: number): yi.TabButton
+---@overload fun(icon_text_batch: ui.TextBatchRef, label_text_batch: ui.TextBatchRef, panel: yi.Panel, index: number): yi.TabButton
 ---@field selected boolean
 local TabButton = Node + {}
 
----@param icon_text_batch love.TextBatch
----@param label_text_batch love.TextBatch
+---@param icon_text_batch ui.TextBatchRef
+---@param label_text_batch ui.TextBatchRef
 ---@param panel yi.Panel
 ---@param index number
 function TabButton:new(icon_text_batch, label_text_batch, panel, index)
@@ -69,14 +69,12 @@ function Panel:new(tabs)
 	self:setPaddings({10, 10, 10, 10})
 	self:setChildGap(10)
 
-	-- Create tabs container (left side)
 	self.tabs_container = self:add(Node(), {
 		arrange = "flow_v",
 		child_gap = 8,
 		align_items = "stretch"
 	})
 
-	-- Create content container (right side)
 	self.content_container = self:add(Node(), {
 		arrange = "flow_v",
 		width = "100%",
@@ -89,7 +87,7 @@ function Panel:new(tabs)
 	end
 end
 
----@param tab_data {icon: love.TextBatch, label: love.TextBatch, content: yi.Thing[]}
+---@param tab_data {icon: ui.TextBatchRef, label: ui.TextBatchRef, content: yi.Thing[]}
 function Panel:addTab(tab_data)
 	local index = #self.tabs + 1
 
