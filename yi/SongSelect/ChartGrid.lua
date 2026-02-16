@@ -1,7 +1,6 @@
 local ElasticList = require("yi.SongSelect.ElasticList")
-local Fonts = require("yi.Fonts")
 local Colors = require("yi.Colors")
-local Images = require("yi.Images")
+local Resources = require("yi.Resources")
 
 ---@class yi.ChartGrid : yi.ElasticList
 local ChartGrid = ElasticList + {}
@@ -10,8 +9,8 @@ local ChartGrid = ElasticList + {}
 function ChartGrid:new(select_model)
 	ElasticList.new(self)
 	self.select_model = select_model
-	self.font = Fonts:get("bold", 36)
-	self.font_small = Fonts:get("bold", 16)
+	self.font = Resources:getFont("bold", 36)
+	self.font_small = Resources:getFont("bold", 16)
 end
 
 ---@return yi.Chartview[]
@@ -80,13 +79,13 @@ function ChartGrid:drawItem(item, w, h, is_selected)
 	c[3] = color[3] * d
 	love.graphics.setColor(c)
 
-	local img = Images.ChartCell
+	local img = Resources.images.chart_cell
 	love.graphics.draw(img, 0, 0, 0, w / img:getWidth(), h / img:getHeight())
 
 	local difficulty = ("%0.01f"):format(item.difficulty or 0)
 	local mode = (item.inputmode or ""):gsub("key", "K"):gsub("scratch", "S")
-	local d = w / self.SelectedWidth
-	local font = self.font
+	d = w / self.SelectedWidth
+	local font = self.font.object
 	love.graphics.setFont(font)
 	love.graphics.setColor(0, 0, 0, 1)
 
@@ -99,7 +98,7 @@ function ChartGrid:drawItem(item, w, h, is_selected)
 		font:getHeight() - 15
 	)
 
-	local font_small = self.font_small
+	local font_small = self.font_small.object
 	love.graphics.setFont(font_small)
 	love.graphics.print(
 		mode,

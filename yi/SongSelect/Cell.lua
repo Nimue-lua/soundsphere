@@ -1,7 +1,6 @@
 local Node = require("ui.view.Node")
-local Text = require("ui.view.Text")
-local Fonts = require("yi.Fonts")
 local Colors = require("yi.Colors")
+local Resources = require("yi.Resources")
 
 ---@class yi.SongSelect.Cell : view.Node
 ---@operator call: yi.SongSelect.Cell
@@ -12,8 +11,14 @@ function Cell:new(label)
 	Node.new(self)
 	self:setHeight(70)
 	self:setWidth(140)
-	self.top_text = Text(Fonts:get("regular", 16), label)
-	self.value_text = Text(Fonts:get("bold", 36), "XXX")
+	self.top_text = Resources:newTextBatch("regular", 16, label)
+	self.value_text = Resources:newTextBatch("bold", 36, "XXX")
+end
+
+function Cell:destroy()
+	Node.destroy(self)
+	self.top_text:release()
+	self.value_text:release()
 end
 
 ---@param v string
@@ -30,10 +35,10 @@ function Cell:draw()
 	love.graphics.line(2, 0, 2, h)
 	love.graphics.setColor(Colors.lines)
 	love.graphics.translate(15, 5)
-	self.top_text:draw()
+	love.graphics.draw(self.top_text.object)
 	love.graphics.setColor(Colors.text)
 	love.graphics.translate(0, 14)
-	self.value_text:draw()
+	love.graphics.draw(self.value_text.object)
 end
 
 return Cell

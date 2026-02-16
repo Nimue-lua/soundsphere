@@ -8,7 +8,6 @@ local Button = Node + {}
 ---@param callback function
 function Button:new(callback)
 	Node.new(self)
-	self:setPaddings({2, 10, 2, 10})
 	self.callback = callback
 	self.handles_mouse_input = true
 end

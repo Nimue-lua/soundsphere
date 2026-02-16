@@ -1,6 +1,7 @@
 local Node = require("ui.view.Node")
-local Text = require("ui.view.Text")
-local Fonts = require("yi.Fonts")
+local Label = require("ui.view.Label")
+local Colors = require("yi.Colors")
+local Resources = require("yi.Resources")
 
 ---@class yi.Slider : view.Node
 ---@overload fun(label: string, get_value: (fun(): number), set_value: fun(v: number), min: number, max: number, step: number): yi.Slider
@@ -14,29 +15,40 @@ local Slider = Node + {}
 ---@param step number
 function Slider:new(label, get_value, set_value, min, max, step)
 	Node.new(self)
-	self.text_obj = Text(Fonts:get("regular", 24), label)
+	self.label = label
 	self.get_value = get_value
 	self.set_value = set_value
 	self.min = min
 	self.max = max
 	self.step = step
-
 	self.handles_mouse_input = true
-
 	self.layout_box:setWidth(300)
 	self.layout_box:setHeight(64)
+	self.label_text = self:add(Label(Resources:newTextBatch("regular", 24, self.label)))
+	self.value_text = self:add(Label(Resources:newTextBatch("regular", 16)))
+	self.value_text:setPivot("center_right")
+	self:updateValueLabel()
 end
-
-function Slider:load() end
 
 ---@param e ui.DragStartEvent
 function Slider:onDragStart(e)
-	self:onDrag(e)
+	self:newPositionSet(e.x, e.y)
 end
 
 ---@param e ui.DragEvent
 function Slider:onDrag(e)
-	local imx, imy = self.transform:get():inverseTransformPoint(e.x, e.y)
+	self:newPositionSet(e.x, e.y)
+end
+
+---@param e ui.MouseClickEvent
+function Slider:onMouseClick(e)
+	self:newPositionSet(e.x, e.y)
+end
+
+---@param x number Global mouse coordinate
+---@param y number Global mouse coordinate
+function Slider:newPositionSet(x, y)
+	local imx, _ = self.transform:get():inverseTransformPoint(x, y)
 	local w = self:getCalculatedWidth()
 	local percentage = math.max(0, math.min(1, imx / w))
 	local val = self.min + (self.max - self.min) * percentage
@@ -44,22 +56,25 @@ function Slider:onDrag(e)
 		val = math.floor(val / self.step + 0.5) * self.step
 	end
 	self.set_value(val)
+	self:updateValueLabel()
 end
 
----@param e ui.DragEndEvent
-function Slider:onDragEnd(e) end
+function Slider:updateValueLabel()
+	local val = tostring(self.get_value())
+	local value_str = ""
 
----@param e ui.MouseClickEvent
-function Slider:onMouseClick(e)
-	self:onDrag(e)
+	if self.step % 1 ~= 0 then
+		value_str = ("%.2f"):format(val)
+	else
+		value_str = tostring(val)
+	end
+
+	self.value_text:setText(value_str)
 end
 
 function Slider:draw()
 	local w = self:getCalculatedWidth()
 	local h = self:getCalculatedHeight()
-
-	love.graphics.setColor(1, 1, 1, 0.7)
-	self.text_obj:draw()
 
 	local track_h = 4
 	local track_y = h - 12
@@ -69,24 +84,14 @@ function Slider:draw()
 	love.graphics.setColor(1, 1, 1, 0.15)
 	love.graphics.rectangle("fill", 0, track_y - track_h / 2, w, track_h)
 
-	love.graphics.setColor(1, 1, 1, 0.8)
+	love.graphics.setColor(Colors.accent)
 	love.graphics.rectangle("fill", 0, track_y - track_h / 2, w * percentage, track_h)
 
 	local handle_x = w * percentage
 	local handle_w = 4
 	local handle_h = 24
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(Colors.text)
 	love.graphics.rectangle("fill", handle_x - handle_w / 2, track_y - handle_h / 2, handle_w, handle_h)
-
-	local value_str = tostring(val)
-	if self.step % 1 ~= 0 then
-		value_str = string.format("%.2f", val)
-	end
-
-	local font = Fonts:get("regular", 16)
-	love.graphics.setFont(font)
-	love.graphics.setColor(1, 1, 1, 0.5)
-	love.graphics.printf(value_str, 0, track_y - 28, w, "right")
 end
 
 return Slider

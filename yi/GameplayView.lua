@@ -2,7 +2,7 @@ local Screen = require("yi.Screen")
 local SequenceView = require("sphere.views.SequenceView")
 
 ---@class yi.GameplayView : yi.Screen
----@overload fun(ui: yi.UserInterface)
+---@overload fun(ui: yi.UserInterface): yi.GameplayView
 local GameplayView = Screen + {}
 
 ---@param ui yi.UserInterface

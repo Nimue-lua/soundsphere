@@ -1,7 +1,7 @@
 local Node = require("ui.view.Node")
 
 ---@class yi.SongSelect.Background : view.Node
----@overload fun(background_model: sphere.BackgroundModel)
+---@overload fun(background_model: sphere.BackgroundModel): yi.SongSelect.Background
 local Background = Node + {}
 
 ---@param background_model sphere.BackgroundModel

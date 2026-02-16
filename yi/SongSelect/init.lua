@@ -1,18 +1,16 @@
 local Screen = require("yi.Screen")
 local Node = require("ui.view.Node")
 local Label = require("ui.view.Label")
-local Rectangle = require("ui.view.Rectangle")
-local Fonts = require("yi.Fonts")
 local Colors = require("yi.Colors")
-local Images = require("yi.Images")
+local Resources = require("yi.Resources")
 local L = require("yi.Localization")
 local Tag = require("yi.SongSelect.Tag")
 local Cell = require("yi.SongSelect.Cell")
 local ChartSetList = require("yi.SongSelect.ChartSetList")
 local ChartGrid = require("yi.SongSelect.ChartGrid")
 local Button = require("yi.SongSelect.Button")
-local Text = require("ui.view.Text")
 local Slider = require("yi.views.Slider")
+local Checkbox = require("yi.views.Checkbox")
 
 local ImGuiSettings = require("ui.views.SettingsView")
 local ImGuiModifiers = require("ui.views.ModifierView")
@@ -23,7 +21,7 @@ local ImGuiGameplayConfig = require("ui.views.SelectView.PlayConfigView")
 local layout = require("yi.layout")
 
 ---@class yi.SongSelect : yi.Screen
----@overload fun(ui: yi.UserInterface)
+---@overload fun(ui: yi.UserInterface): yi.SongSelect
 local SongSelect = Screen + {}
 
 local info = {
@@ -34,6 +32,22 @@ local info = {
 	align_items = "stretch",
 }
 
+local small_button = {
+	arrange = "flow_v",
+	align_items = "center",
+	padding = {5, 10, 5, 10},
+	min_width = 100,
+}
+
+local play_button = {
+	arrange = "flow_h",
+	justify_content = "center",
+	align_items = "center",
+	padding = {5, 10, 5, 10},
+	child_gap = 10,
+	grow = 1
+}
+
 local function TopInfo()
 	return {Node(), arrange = "flow_v", stencil = true, child_gap = 15,
 		{Node(), arrange = "flow_h", child_gap = 10,
@@ -41,14 +55,14 @@ local function TopInfo()
 			{Tag(), id = "format"},
 		},
 		{Node(), arrange = "flow_v",
-			{Label(Fonts:get("black", 72), L.loading), color = Colors.text, id = "title"},
-			{Label(Fonts:get("bold", 58), L.loading), y = -5, color = Colors.lines, id = "artist"},
+			{Label(Resources:newTextBatch("black", 72, L.loading)), color = Colors.text, id = "title"},
+			{Label(Resources:newTextBatch("bold", 58, L.loading)), y = -5, color = Colors.lines, id = "artist"},
 		}
 	}
 end
 
 local function ChartInfo()
-	return {Node(), arrange = "flow_v", child_gap = 10, stencil = true, width = "100%",
+	return {Node(), arrange = "flow_v", child_gap = 10, width = "100%",
 		{Node(), arrange = "flow_h", child_gap = 10, width = "100%",
 			{Cell(L.difficulty), id = "difficulty"},
 			{Cell(L.mode), id = "mode"},
@@ -72,6 +86,10 @@ function SongSelect:new(ui)
 	self:setHeight("100%")
 	self:setArrange("flow_h")
 	self:setAlignItems("stretch")
+end
+
+function SongSelect:load()
+	Screen.load(self)
 
 	local function open_config()
 		self.ui:setImguiModal(ImGuiSettings)
@@ -97,16 +115,25 @@ function SongSelect:new(ui)
 		self.ui:changeScreen(self.ui.ScreenName.Gameplay)
 	end
 
-	local scale_slider = Slider("UI Scale:", function ()
-			return self.ui.engine.height_scale
+	local rate_slider = Slider("Music Speed:", function()
+			return self.ui.game.timeRateModel:get()
 		end,
 		function(v)
-			self.ui.engine.height_scale = v
-			self.ui.engine:updateRootDimensions()
+			self.ui.game.timeRateModel:set(v)
+			self.ui.game.modifierSelectModel:change()
 		end,
 		0.75,
-		2,
+		1.5,
 		0.05
+	)
+
+	local const_slider = Checkbox("Const. Scroll Speed",
+		function()
+			return self.ui.game.replayBase.const
+		end,
+		function(v)
+			self.ui.game.replayBase.const = v
+		end
 	)
 
 	self.ids = layout(self, {
@@ -116,19 +143,36 @@ function SongSelect:new(ui)
 				{ChartGrid(self.select_model), id = "chart_grid", width = "100%", height = 70, stencil = true},
 				ChartInfo(),
 			},
-			{Label(Fonts:get("bold", 16), "This game uses MiSans fonts, provided by Xiaomi Inc. under the MiSans Font Intellectual Property License Agreement."), color = {1 ,1 ,1, 1}},
-			{ scale_slider },
-			{Node(), arrange = "flow_h", child_gap = 10,
-				{Button(open_config), height = 50,
-					{ Label(Fonts:get("bold", 16), "Config") }
+			{Node(), arrange = "flow_v",
+				{rate_slider},
+				{const_slider},
+				{Label(Resources:newTextBatch("regular", 16, L.mi_sans_license)), color = Colors.text}
+			},
+			{Node(), arrange = "flow_h", child_gap = 10, align_items = "stretch",
+				{Button(open_config), small_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "CONFIG"))}
+				},
+				{Button(open_mods), small_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "MODS"))}
+				},
+				{Button(open_inputs), small_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "INPUTS"))}
+				},
+				{Button(open_skins), small_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "SKINS"))}
+				},
+				{Button(open_gameplay), small_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "GAMEPLAY"))}
+				},
+				{Button(play), play_button,
+					{Label(Resources:newTextBatch("icons", 24, ""))},
+					{Label(Resources:newTextBatch("bold", 16, "PLAY"))}
 				}
-				--[[
-				{Button(open_mods, Text(Fonts.Bold, 40, L.mods)), height = 50},
-				{Button(open_inputs, Text(Fonts.Bold, 40, L.inputs)), height = 50},
-				{Button(open_skins, Text(Fonts.Bold, 40, L.skins)), height = 50},
-				{Button(open_gameplay, Text(Fonts.Bold, 40, L.gameplay)), height = 50},
-				{Button(play, Text(Fonts.Bold, 40, L.play), true), height = 50}
-				]]
 			}
 		},
 		{Node(), id = "third", width = "30%", stencil = true,
@@ -171,10 +215,11 @@ end
 
 function SongSelect:draw()
 	local h = self:getCalculatedHeight()
-	local ih = Images.Gradient:getHeight()
+	local img = Resources.images.gradient
+	local ih = img:getHeight()
 
 	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.draw(Images.Gradient, 0, 0, 0, 15, h / ih)
+	love.graphics.draw(img, 0, 0, 0, 15, h / ih)
 end
 
 ---@param t {[string]: number}
@@ -220,7 +265,7 @@ function SongSelect:setChartview(chartview, chart_changed, chart_set_changed)
 
 	local minutes = chartview.duration / 60
 	local seconds = chartview.duration % 60
-	self.ids.difficulty:setValueText(("%0.02f*"):format(chartview.osu_diff))
+	self.ids.difficulty:setValueText(("%0.02f"):format(chartview.difficulty))
 	self.ids.bpm:setValueText(("%i"):format(chartview.tempo))
 	self.ids.duration:setValueText(("%i:%02i"):format(minutes, seconds))
 	self.ids.notes:setValueText(tostring(chartview.notes_count))
@@ -230,7 +275,10 @@ function SongSelect:setChartview(chartview, chart_changed, chart_set_changed)
 
 	local patterns = get_top_two(chartview.msd_diff_data)
 
-	self.ids.bottom_tags.children = {}
+	for _, v in ipairs(self.ids.bottom_tags.children) do
+		v:kill()
+	end
+
 	local first = self.ids.bottom_tags:add(Tag())
 	first:setText(patterns[1][1]:upper())
 

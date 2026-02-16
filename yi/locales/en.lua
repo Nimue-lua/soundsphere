@@ -13,4 +13,5 @@ return {
 	ranked = "RANKED",
 	unranked = "UNRANKED",
 	loading = "LOADING...",
+	mi_sans_license = "Rizu uses MiSans fonts, provided by Xiaomi Inc. under the MiSans Font Intellectual Property License Agreement."
 }

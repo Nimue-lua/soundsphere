@@ -1,10 +1,8 @@
 local class = require("class")
 local Node = require("ui.view.Node")
-local Rectangle = require("ui.view.Rectangle")
 local Engine = require("ui.Engine")
 
-local Fonts = require("yi.Fonts")
-local Images = require("yi.Images")
+local Resources = require("yi.Resources")
 local Localization = require("yi.Localization")
 local SongSelect = require("yi.SongSelect")
 local GameplayView = require("yi.GameplayView")
@@ -35,10 +33,9 @@ UserInterface.gameView = {} -- ImGui needs this
 ---@param game sphere.GameController
 function UserInterface:new(game)
 	self.game = game
-
 	imgui_ctx.game = game
+	Resources:init()
 	Localization:apply(require("yi.locales.en"))
-	Images:init()
 end
 
 function UserInterface:load()
@@ -46,7 +43,7 @@ function UserInterface:load()
 	self.root.id = "root"
 	self.engine = Engine(1080)
 	self.engine:setRoot(self.root)
-
+	Resources:setDpi(self.engine.current_dpi)
 	self.root:add(Background(self.game.backgroundModel))
 	self:changeScreen(ScreenName.SongSelect)
 end
@@ -100,8 +97,13 @@ function UserInterface:receive(event)
 		self.modal = nil
 		return
 	end
+
 	self.engine:receive(event)
 	self.screen:receive(event)
+
+	if event.name == "resize" then
+		Resources:setDpi(self.engine.current_dpi)
+	end
 end
 
 return UserInterface

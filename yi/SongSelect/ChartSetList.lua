@@ -1,7 +1,6 @@
 local Node = require("ui.view.Node")
-local Fonts = require("yi.Fonts")
 local Colors = require("yi.Colors")
-local Images = require("yi.Images")
+local Resources = require("yi.Resources")
 
 ---@class yi.SongSelect.ChartSetList : view.Node
 ---@overload fun(select_model: sphere.SelectModel)
@@ -13,8 +12,12 @@ function ChartSetList:new(select_model)
 	self.select_model = select_model
 	self.handles_mouse_input = true
 	self.scroll = 0
-	self.title_font = Fonts:get("bold", 24)
-	self.artist_font = Fonts:get("regular", 16)
+end
+
+function ChartSetList:load()
+	Node.load(self)
+	self.title_font = Resources:getFont("bold", 24)
+	self.artist_font = Resources:getFont("regular", 16)
 end
 
 ---@param e ui.ScrollEvent
@@ -40,8 +43,8 @@ function ChartSetList:draw()
 		return
 	end
 
-	local title_h = self.title_font:getHeight()
-	local artist_h = self.artist_font:getHeight()
+	local title_h = self.title_font.object:getHeight()
+	local artist_h = self.artist_font.object:getHeight()
 	local gap = 2
 	local padding = 25
 	local panel_height = title_h + artist_h + gap + padding * 2
@@ -56,16 +59,16 @@ function ChartSetList:draw()
 			love.graphics.rectangle("fill", 0, y, w, panel_height)
 
 			love.graphics.setColor(Colors.text)
-			love.graphics.setFont(self.title_font)
+			love.graphics.setFont(self.title_font.object)
 			love.graphics.print(items[i].title or "Nil Title", x_indent, y + padding)
 
 			love.graphics.setColor(Colors.lines)
-			love.graphics.setFont(self.artist_font)
+			love.graphics.setFont(self.artist_font.object)
 			love.graphics.print(items[i].artist or "Nil Artist", x_indent, y + padding + title_h + gap)
 		end
 	end
 
-	local img = Images.Gradient
+	local img = Resources.images.gradient
 	love.graphics.setColor(Colors.accent)
 	love.graphics.draw(img, 0, mid_offset * panel_height, 0, 0.2, panel_height / img:getHeight())
 end
