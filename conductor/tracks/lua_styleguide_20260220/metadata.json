@@ -1,0 +1,8 @@
+{
+  "track_id": "lua_styleguide_20260220",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-02-20T10:00:00Z",
+  "updated_at": "2026-02-20T10:00:00Z",
+  "description": "Write a Lua code style guide based on the rizu/ subfolder and save it to conductor/code_styleguides"
+}
