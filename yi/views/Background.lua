@@ -1,17 +1,15 @@
-local Node = require("ui.view.Node")
+local View = require("yi.views.View")
 
----@class yi.SongSelect.Background : view.Node
----@overload fun(background_model: sphere.BackgroundModel): yi.SongSelect.Background
-local Background = Node + {}
+---@class yi.Background : yi.View
+---@overload fun(): yi.Background
+local Background = View + {}
 
 Background.parallax_scale = 1.02
 Background.parallax_strength = 10 -- Maximum offset in pixels
 Background.parallax_smoothing = 5
 
----@param background_model sphere.BackgroundModel
-function Background:new(background_model)
-	Node.new(self)
-	self.background_model = background_model
+function Background:new()
+	View.new(self)
 	self:setWidth("100%")
 	self:setHeight("100%")
 
@@ -21,6 +19,11 @@ function Background:new(background_model)
 	self.target_parallax_y = 0
 
 	self.dim = 0.5
+end
+
+function Background:load()
+	View.load(self)
+	self.background_model = self.env.game.backgroundModel
 end
 
 ---@param dim number
@@ -33,7 +36,7 @@ function Background:update(dt)
 	dt = math.min(dt, 0.1) -- Prevent explosion when window is unfocused
 
 	local mx, my = love.mouse.getPosition()
-	local imx, imy = self.transform:get():inverseTransformPoint(mx, my)
+	local imx, imy = self.transform:inverseTransformPoint(mx, my)
 	local w, h = self:getCalculatedWidth(), self:getCalculatedHeight()
 
 	local norm_x = (imx / w) * 2 - 1

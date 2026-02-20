@@ -11,6 +11,9 @@ local ChartGrid = require("yi.SongSelect.ChartGrid")
 local Button = require("yi.SongSelect.Button")
 local Slider = require("yi.views.Slider")
 local Checkbox = require("yi.views.Checkbox")
+local Dropdown = require("yi.views.Dropdown")
+local Panel = require("yi.SongSelect.Panel")
+local Rectangle = require("ui.view.Rectangle")
 
 local ImGuiSettings = require("ui.views.SettingsView")
 local ImGuiModifiers = require("ui.views.ModifierView")
@@ -30,6 +33,7 @@ local info = {
 	justify_content = "space_between",
 	arrange = "flow_v",
 	align_items = "stretch",
+	child_gap = 20,
 }
 
 local small_button = {
@@ -136,6 +140,25 @@ function SongSelect:load()
 		end
 	)
 
+	local overview = {
+		icon = Resources:newTextBatch("icons", 24, ""),
+		label = Resources:newTextBatch("bold", 16, "OVERVIEW"),
+		content = {
+			{Node(), arrange = "flow_v",
+				{rate_slider},
+				{const_slider}
+			}
+		}
+	}
+
+	local scores = {
+		icon = Resources:newTextBatch("icons", 24, ""),
+		label = Resources:newTextBatch("bold", 16, "SCORES"),
+		content = {
+			{Label(Resources:newTextBatch("regular", 24, "Scores tab"))}
+		}
+	}
+
 	self.ids = layout(self, {
 		{Node(), info,
 			{Node(), arrange = "flow_v", child_gap = 20,
@@ -143,11 +166,7 @@ function SongSelect:load()
 				{ChartGrid(self.select_model), id = "chart_grid", width = "100%", height = 70, stencil = true},
 				ChartInfo(),
 			},
-			{Node(), arrange = "flow_v",
-				{rate_slider},
-				{const_slider},
-				{Label(Resources:newTextBatch("regular", 16, L.mi_sans_license)), color = Colors.text}
-			},
+			{Panel({overview, scores}), grow = 1},
 			{Node(), arrange = "flow_h", child_gap = 10, align_items = "stretch",
 				{Button(open_config), small_button,
 					{Label(Resources:newTextBatch("icons", 24, ""))},

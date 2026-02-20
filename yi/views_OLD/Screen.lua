@@ -1,5 +1,3 @@
-local Node = require("ui.view.Node")
-
 ---@class yi.Screen : view.Node
 ---@operator call: yi.Screen
 local Screen = Node + {}

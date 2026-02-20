@@ -10,12 +10,9 @@ local Tag = Node + {}
 function Tag:load()
 	Node.load(self)
 	self.background_color = Colors.panels
+	self:setPaddings({5, 20, 5, 20})
 
-	local margin = self:add(Node(), {
-		padding = {5, 20, 5, 20}
-	})
-
-	self.label = margin:add(Label(Resources:newTextBatch("bold", 16, "LOADING...")))
+	self.label = self:add(Label(Resources:newTextBatch("bold", 16, "LOADING...")))
 	self.label.color = Colors.text
 end
 

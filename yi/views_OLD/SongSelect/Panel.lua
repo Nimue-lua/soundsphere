@@ -20,6 +20,7 @@ function TabButton:new(icon_text_batch, label_text_batch, panel, index)
 	self.handles_mouse_input = true
 
 	self:setArrange("flow_h")
+	self:setAlignItems("center")
 	self:setPaddings({8, 12, 8, 12})
 	self:setChildGap(8)
 
@@ -76,9 +77,7 @@ function Panel:new(tabs)
 	})
 
 	self.content_container = self:add(Node(), {
-		arrange = "flow_v",
-		width = "100%",
-		height = "100%",
+		grow = 1
 	})
 
 	-- Process tabs from constructor argument
