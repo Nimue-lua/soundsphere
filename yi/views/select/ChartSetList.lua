@@ -1,4 +1,4 @@
-local ScrollList = require("yi.views.List.ScrollList")
+local ScrollList = require("yi.views.scroll_list.ScrollList")
 local Colors = require("yi.Colors")
 
 ---@class yi.ChartSetList : yi.ScrollList

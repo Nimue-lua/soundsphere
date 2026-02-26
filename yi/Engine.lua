@@ -15,7 +15,6 @@ local table_util = require("table_util")
 ---@field layout_update_requesters yi.View[]
 ---@field transform_update_requesters yi.View[]
 ---@field removal_deferred yi.View[]
----@field detach_deferred yi.View[]
 local Engine = class()
 
 ---@param inputs ui.Inputs
@@ -31,7 +30,6 @@ function Engine:new(inputs, ctx)
 	self.layout_update_requesters = {}
 	self.transform_update_requesters = {}
 	self.removal_deferred = {}
-	self.detach_deferred = {}
 end
 
 function Engine:load()
@@ -43,6 +41,12 @@ end
 ---@param view yi.View
 ---@param dt number
 function Engine:updateView(view, dt)
+	if view.just_changed_visibility then
+		view.just_changed_visibility = false
+		self.rebuild_command_buffer = true
+		return
+	end
+
 	local state = view.state
 
 	if state == ViewState.Active then
@@ -68,8 +72,6 @@ function Engine:updateView(view, dt)
 		self:updateView(view, dt)
 	elseif state == ViewState.Killed then
 		table.insert(self.removal_deferred, view)
-	elseif state == ViewState.Detached then
-		table.insert(self.detach_deferred, view)
 	elseif state == ViewState.Destoryed then
 		error("DO NOT CALL View:destroy() manually!!!")
 	end
@@ -112,16 +114,11 @@ function Engine:update(dt, mouse_x, mouse_y)
 	table_util.clear(self.layout_update_requesters)
 	table_util.clear(self.transform_update_requesters)
 	table_util.clear(self.removal_deferred)
-	table_util.clear(self.detach_deferred)
 
 	self:updateView(self.root, dt)
 
 	for i = 1, #self.removal_deferred do
 		self:remove(self.removal_deferred[i], true)
-	end
-
-	for i = 1, #self.detach_deferred do
-		self:remove(self.detach_deferred[i], false)
 	end
 
 	local updated_roots = self.layout_engine:updateLayout(self.layout_update_requesters)

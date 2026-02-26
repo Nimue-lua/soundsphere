@@ -1,5 +1,5 @@
 local class = require("class")
-local ScrollPhysics = require("yi.views.List.ScrollPhysics")
+local ScrollPhysics = require("yi.views.scroll_list.ScrollPhysics")
 
 ---@alias yi.ScrollCameraState "idle" | "dragging" | "momentum" | "returning" | "tweening"
 

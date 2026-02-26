@@ -1,4 +1,4 @@
-local ElasticList = require("yi.views.Select.ElasticList")
+local ElasticList = require("yi.views.select.ElasticList")
 
 ---@class yi.ChartGrid : yi.ElasticList
 ---@operator call: yi.ChartGrid

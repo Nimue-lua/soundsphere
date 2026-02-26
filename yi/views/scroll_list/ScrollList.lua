@@ -1,5 +1,5 @@
 local View = require("yi.views.View")
-local ScrollCamera = require("yi.views.List.ScrollCamera")
+local ScrollCamera = require("yi.views.scroll_list.ScrollCamera")
 
 ---@class yi.ScrollList : yi.View
 ---@overload fun(): yi.ScrollList
