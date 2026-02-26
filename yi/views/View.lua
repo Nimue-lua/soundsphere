@@ -15,7 +15,7 @@ local AlignItems = LayoutEnums.AlignItems
 ---@field id string?
 ---@field parent yi.View
 ---@field children yi.View[]
----@field hidden_children yi.View[] Invisible children excluded from rendering and layout
+---@field disabled_children yi.View[] Disabled children excluded from rendering, updating and layout
 ---@field draw? fun(self: yi.View)
 ---@field color yi.Color?
 ---@field blend_mode yi.BlendMode?
@@ -39,9 +39,9 @@ local State = View.State
 
 function View:new()
 	Node.new(self)
-	self.visible = true
-	self.just_changed_visibility = false
-	self.hidden_children = {}
+	self.enabled = true
+	self.just_changed_enabled = false
+	self.disabled_children = {}
 	self.state = State.AwaitsMount
 	self.transform = Transform()
 end
@@ -60,7 +60,7 @@ function View:mount(ctx)
 		end
 	end
 
-	local h = self.hidden_children
+	local h = self.disabled_children
 	for i = 1, #h do
 		local v = h[i]
 		if v.state == State.AwaitsMount then
@@ -81,10 +81,10 @@ function View:add(view, params)
 		view:setup(params)
 	end
 
-	if not view.visible then
+	if not view.enabled then
 		local idx = table_util.indexof(self.children, view)
 		table.remove(self.children, idx)
-		table.insert(self.hidden_children, idx)
+		table.insert(self.disabled_children, view)
 	end
 
 	if self.ctx and view.state == State.AwaitsMount then
@@ -122,23 +122,31 @@ function View:load() end
 function View:loadComplete() end
 
 function View:destroy()
+	if self.disabled_children then
+		for i = #self.disabled_children, 1, -1 do
+			local child = self.disabled_children[i]
+			child.parent = nil
+			child:destroy()
+		end
+		table_util.clear(self.disabled_children)
+	end
 	Node.destroy(self)
 	self.state = State.Destoryed
 end
 
 ---@param v boolean
-function View:setVisible(v)
-	if self.visible == v then
+function View:setEnabled(v)
+	if self.enabled == v then
 		return
 	end
 
-	self.visible = v
+	self.enabled = v
 	local p = self.parent
 
 	if not p then
 		-- Should only happen to the root or this:
 		-- local v = View()
-		-- v:setup({visible = false})
+		-- v:setup({enabled = false})
 		-- parent:add(v) should take care of this
 		return
 	end
@@ -147,18 +155,18 @@ function View:setVisible(v)
 		local idx = table_util.indexof(p.children, self)
 		if idx then
 			table.remove(p.children, idx)
-			table.insert(p.hidden_children, self)
+			table.insert(p.disabled_children, self)
 		end
 	else
-		local idx = table_util.indexof(p.hidden_children, self)
+		local idx = table_util.indexof(p.disabled_children, self)
 		if idx then
-			table.remove(p.hidden_children, idx)
+			table.remove(p.disabled_children, idx)
 			table.insert(p.children, self)
 		end
 	end
 
 	p.layout_box:markDirty(LayoutEnums.Axis.Both)
-	self.just_changed_visibility = true
+	self.just_changed_enabled = true
 end
 
 ---@param dt number
@@ -501,7 +509,7 @@ View.Setters = {
 	corner_radius = true,
 	stencil = true,
 	id = true,
-	visible = View.setVisible,
+	enabled = View.setEnabled,
 	mouse = function(self, v) self.handles_mouse_input = v end,
 	keyboard = function(self, v) self.handles_keyboard_input = v end
 }

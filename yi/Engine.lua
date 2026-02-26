@@ -39,12 +39,34 @@ end
 
 ---@private
 ---@param view yi.View
+function Engine:processDisabledView(view)
+	if view.just_changed_enabled then
+		view.just_changed_enabled = false
+		self.rebuild_command_buffer = true
+	end
+
+	local state = view.state
+
+	if state == ViewState.Active then
+		-- do nothing
+	elseif state == ViewState.Loaded then
+		view.state = ViewState.Active
+		view:loadComplete()
+		self.rebuild_command_buffer = true
+	elseif state == ViewState.Killed then
+		table.insert(self.removal_deferred, view)
+	elseif state == ViewState.Destoryed then
+		error("DO NOT CALL View:destroy() manually!!!")
+	end
+end
+
+---@private
+---@param view yi.View
 ---@param dt number
 function Engine:updateView(view, dt)
-	if view.just_changed_visibility then
-		view.just_changed_visibility = false
+	if view.just_changed_enabled then
+		view.just_changed_enabled = false
 		self.rebuild_command_buffer = true
-		return
 	end
 
 	local state = view.state
@@ -64,6 +86,11 @@ function Engine:updateView(view, dt)
 		local children = view.children
 		for i = 1, #children do
 			self:updateView(children[i], dt)
+		end
+
+		local disabled = view.disabled_children
+		for i = 1, #disabled do
+			self:processDisabledView(disabled[i])
 		end
 	elseif state == ViewState.Loaded then
 		view.state = ViewState.Active
@@ -89,6 +116,11 @@ function Engine:remove(view, kill)
 			self.rebuild_command_buffer = true
 			parent.layout_box:markDirty(LayoutEnums.Axis.Both)
 			table.insert(self.layout_update_requesters, parent)
+		else
+			local disabled_idx = table_util.indexof(parent.disabled_children, view)
+			if disabled_idx then
+				table.remove(parent.disabled_children, disabled_idx)
+			end
 		end
 	end
 

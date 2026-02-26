@@ -167,7 +167,6 @@ end
 
 function Select:exit()
 	self.select_controller:unload()
-	self:kill()
 end
 
 function Select:update(_)

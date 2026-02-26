@@ -40,7 +40,6 @@ end
 function GameplayView:exit()
 	self.gameplay_interactor:unloadGameplay()
 	self.seq_view:unload()
-	self:kill()
 end
 
 function GameplayView:quit()

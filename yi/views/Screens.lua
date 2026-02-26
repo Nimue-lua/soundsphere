@@ -12,30 +12,38 @@ function Screens:new()
 	View.new(self)
 	self:setWidth("100%")
 	self:setHeight("100%")
+
+	self.menu = self:add(Menu())
+	self.select = self:add(Select())
+	self.gameplay = self:add(Gameplay())
+	self.result = self:add(Result())
+
+	self.menu:setEnabled(false)
+	self.select:setEnabled(false)
+	self.gameplay:setEnabled(false)
+	self.result:setEnabled(false)
 end
 
 ---@param screen_name "menu" | "select" | "gameplay" | "result"
 function Screens:set(screen_name)
-	for _, v in ipairs(self.children) do
-		v:kill()
-	end
-
 	if self.screen then
+		self.screen:setEnabled(false)
 		self.screen:exit()
 	end
 
 	if screen_name == "menu" then
-		self.screen = self:add(Menu())
+		self.screen = self.menu
 	elseif screen_name == "select" then
-		self.screen = self:add(Select())
+		self.screen = self.select
 	elseif screen_name == "gameplay" then
-		self.screen = self:add(Gameplay())
+		self.screen = self.gameplay
 	elseif screen_name == "result" then
-		self.screen = self:add(Result())
+		self.screen = self.result
 	else
 		error("Unknown screen")
 	end
 
+	self.screen:setEnabled(true)
 	self.screen:enter()
 end
 

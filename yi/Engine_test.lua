@@ -232,4 +232,77 @@ function test.arranges(t)
 	t:eq(container.layout_box.y.size, 64)
 end
 
+---@param t testing.T
+function test.enabled_toggling(t)
+	local inputs = Inputs()
+	local ctx = Context({}, inputs)
+	local engine = Engine(inputs, ctx)
+	engine:load()
+
+	local container = engine.root:add(MockView())
+	local child = container:add(MockView())
+	
+	-- First update to resolve initial states
+	engine:update(0.016, 0, 0)
+	engine.rebuild_command_buffer = false -- Reset manually for testing
+
+	t:eq(child.enabled, true)
+	t:eq(#container.children, 1)
+	t:eq(#container.disabled_children, 0)
+
+	-- Disable the child
+	child:setEnabled(false)
+	
+	t:eq(child.enabled, false)
+	t:eq(#container.children, 0)
+	t:eq(#container.disabled_children, 1)
+	t:eq(child.just_changed_enabled, true)
+	
+	-- Update engine
+	engine:update(0.016, 0, 0)
+	
+	t:eq(child.just_changed_enabled, false)
+
+	-- Enable the child
+	child:setEnabled(true)
+	
+	t:eq(child.enabled, true)
+	t:eq(#container.children, 1)
+	t:eq(#container.disabled_children, 0)
+	t:eq(child.just_changed_enabled, true)
+	
+	-- Update engine
+	engine:update(0.016, 0, 0)
+	
+	t:eq(child.just_changed_enabled, false)
+end
+
+---@param t testing.T
+function test.remove_disabled_view(t)
+	local inputs = Inputs()
+	local ctx = Context({}, inputs)
+	local engine = Engine(inputs, ctx)
+	engine:load()
+
+	local container = engine.root:add(MockView())
+	local child = container:add(MockView())
+	
+	engine:update(0.016, 0, 0)
+	
+	-- Disable the child
+	child:setEnabled(false)
+	engine:update(0.016, 0, 0)
+	
+	t:eq(#container.children, 0)
+	t:eq(#container.disabled_children, 1)
+	
+	-- Kill the disabled child
+	child:kill()
+	
+	-- Update engine to process the kill
+	engine:update(0.016, 0, 0)
+	
+	t:eq(#container.disabled_children, 0, "Disabled child should be removed from disabled_children upon kill")
+	t:eq(child.children, nil, "Child should be destroyed")
+end
 return test
