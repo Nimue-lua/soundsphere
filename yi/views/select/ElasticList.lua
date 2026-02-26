@@ -194,7 +194,7 @@ function ElasticList:draw()
 			local w = cell_width - gap
 
 			love.graphics.push()
-			love.graphics.translate(current_x + gap / 2 - gap, 0)
+			love.graphics.translate(current_x, 0)
 			self:drawItem(items[i], w, height, is_selected)
 			love.graphics.pop()
 		end

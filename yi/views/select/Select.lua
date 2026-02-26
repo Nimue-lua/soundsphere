@@ -8,6 +8,7 @@ local Cell = require("yi.views.select.Cell")
 local Tag = require("yi.views.select.Tag")
 local Colors = require("yi.Colors")
 local ChartGrid = require("yi.views.select.ChartGrid")
+local TabContainer = require("yi.views.TabContainer")
 local h = require("yi.h")
 
 local ImGuiSettings = require("ui.views.SettingsView")
@@ -84,18 +85,18 @@ function Select:load()
 	self.tags = View()
 
 	local overview_tab = {
-		icon = Label(res:getFont("icons", 16), ""),
+		icon = Label(res:getFont("icons", 24), ""),
 		text = Label(res:getFont("bold", 16), "Overview"),
 		content = h(View(), {background_color = {1, 0, 0, 1}, w = 100, h = 100})
 	}
 
 	local scores_tab = {
-		icon = Label(res:getFont("icons", 16), ""),
+		icon = Label(res:getFont("icons", 24), ""),
 		text = Label(res:getFont("bold", 16), "Scores"),
 		content = h(View(), {background_color = {0, 1, 0, 1}, w = 100, h = 100})
 	}
 
-	--local tab_container = TabContainer({overview_tab, scores_tab})
+	local tab_container = TabContainer({overview_tab, scores_tab})
 
 	local gradient = love.graphics.newImage("resources/gradient.png")
 
@@ -121,48 +122,49 @@ function Select:load()
 				h(self.chart_grid, {w = "110%", h = 70}),
 				h(self.tags, {arrange = "flex_row", gap = 10})
 			}),
-			h(View(), {arrange = "flex_row", align_items = "stretch", gap = 10}, {
-				h(Button(open_config), small_button, {
-					Label(res:getFont("icons", 24), ""),
-					Label(res:getFont("bold", 16), "CONFIG"),
-				}),
-				h(Button(open_mods), small_button, {
-					Label(res:getFont("icons", 24), ""),
-					Label(res:getFont("bold", 16), "MODS"),
-				}),
-				h(Button(open_inputs), small_button, {
-					Label(res:getFont("icons", 24), ""),
-					Label(res:getFont("bold", 16), "INPUTS"),
-				}),
-				h(Button(open_skins), small_button, {
-					Label(res:getFont("icons", 24), ""),
-					Label(res:getFont("bold", 16), "SKINS"),
-				}),
-				h(Button(open_gameplay), small_button, {
-					Label(res:getFont("icons", 24), ""),
-					Label(res:getFont("bold", 16), "GAMEPLAY"),
-				}),
-				h(Button(play), {grow = 1, shrink = 10, min_w = 130}, {
-					h(View(), play_button_inner, {
-						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "PLAY"),
+			h(View(), {arrange = "flex_col", grow = 1, gap = 10}, {
+				h(tab_container, {w = "100%", grow = 1}),
+				h(View(), {arrange = "flex_row", gap = 10}, {
+					h(Button(open_config), small_button, {
+						Label(res:getFont("icons", 24), ""),
+						Label(res:getFont("bold", 16), "CONFIG"),
+					}),
+					h(Button(open_mods), small_button, {
+						Label(res:getFont("icons", 24), ""),
+						Label(res:getFont("bold", 16), "MODS"),
+					}),
+					h(Button(open_inputs), small_button, {
+						Label(res:getFont("icons", 24), ""),
+						Label(res:getFont("bold", 16), "INPUTS"),
+					}),
+					h(Button(open_skins), small_button, {
+						Label(res:getFont("icons", 24), ""),
+						Label(res:getFont("bold", 16), "SKINS"),
+					}),
+					h(Button(open_gameplay), small_button, {
+						Label(res:getFont("icons", 24), ""),
+						Label(res:getFont("bold", 16), "GAMEPLAY"),
+					}),
+					h(Button(play), {grow = 1, shrink = 10, min_w = 130}, {
+						h(View(), play_button_inner, {
+							Label(res:getFont("icons", 24), ""),
+							Label(res:getFont("bold", 16), "PLAY"),
+						})
 					})
 				})
-			})
+			}),
 		}),
 		h(self.chart_set_list, {w = "30%", h = "100%", pivot = "top_right"})
 	})
 end
 
-function Select:loadComplete()
-	local config = self:getConfig()
-	local bg = self:getContext().background
-	bg:setDim(config.settings.graphics.dim.select)
-end
-
 function Select:enter()
 	self.select_controller:load()
 	love.mouse.setVisible(true)
+
+	local config = self:getConfig()
+	local bg = self:getContext().background
+	bg:setDim(config.settings.graphics.dim.select)
 end
 
 function Select:exit()

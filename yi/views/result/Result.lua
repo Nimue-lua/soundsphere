@@ -29,7 +29,8 @@ function Result:load()
 	self:add(Label(res:getFont("black", 58), acc_string))
 end
 
-function Result:loadComplete()
+function Result:enter()
+	love.mouse.setVisible(false)
 	local config = self:getConfig()
 	local bg = self:getContext().background
 	bg:setDim(config.settings.graphics.dim.result)

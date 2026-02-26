@@ -90,7 +90,7 @@ function ChartGrid:drawItem(item, w, h, is_selected)
 
 	love.graphics.print(
 		difficulty,
-		w / 2, h / 2,
+		w / 2, h / 2 - 2,
 		0,
 		d, d,
 		font:getWidth(difficulty) / 2,
@@ -101,7 +101,7 @@ function ChartGrid:drawItem(item, w, h, is_selected)
 	love.graphics.setFont(font_small)
 	love.graphics.print(
 		mode,
-		w / 2, h / 2 + 4,
+		w / 2, h / 2 + 6,
 		0,
 		1, 1,
 		font_small:getWidth(mode) / 2,

@@ -21,12 +21,6 @@ function GameplayView:load()
 	self.gameplay_interactor = game.gameplayInteractor
 end
 
-function GameplayView:loadComplete()
-	local config = self:getConfig()
-	local bg = self:getContext().background
-	bg:setDim(config.settings.graphics.dim.gameplay)
-end
-
 function GameplayView:enter()
 	local game = self:getGame()
 	self.game_interactor:loadGameplaySelectedChart()
@@ -35,6 +29,10 @@ function GameplayView:enter()
 	self.seq_view:setSequenceConfig(game.noteSkinModel.noteSkin.playField)
 	self.seq_view:load()
 	love.mouse.setVisible(false)
+
+	local config = self:getConfig()
+	local bg = self:getContext().background
+	bg:setDim(config.settings.graphics.dim.gameplay)
 end
 
 function GameplayView:exit()
