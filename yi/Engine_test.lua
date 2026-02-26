@@ -65,34 +65,27 @@ function test.states_and_updates(t)
 
 	local v_active = engine.root:add(MockView())
 	local v_killed = engine.root:add(MockView())
-	local v_detached = engine.root:add(MockView())
 
 	t:eq(v_active.state, View.State.Loaded)
 	t:eq(v_killed.state, View.State.Loaded)
-	t:eq(v_detached.state, View.State.Loaded)
 
 	-- First update to transition them to Active
 	engine:update(0.016, 0, 0)
 	t:eq(v_active.state, View.State.Active)
 	t:eq(v_killed.state, View.State.Active)
-	t:eq(v_detached.state, View.State.Active)
 
 	v_killed:kill()
-	v_detached:detach()
 
 	engine:update(0.016, 0, 0)
 
 	-- Active should be updated again
 	t:eq(v_active.update_calls, 2)
-	-- Killed and Detached should NOT be updated this frame
+	-- Killed should NOT be updated this frame
 	t:eq(v_killed.update_calls, 1)
-	t:eq(v_detached.update_calls, 1)
 
 	-- Check deferred lists
 	t:eq(#engine.removal_deferred, 1)
 	t:eq(engine.removal_deferred[1], v_killed)
-	t:eq(#engine.detach_deferred, 1)
-	t:eq(engine.detach_deferred[1], v_detached)
 
 	-- Only one will remain
 	t:eq(#engine.root.children, 1)
@@ -195,7 +188,7 @@ function test.layout_update_on_removal(t)
 	t:eq(x2, 0)
 	t:eq(y2, 0)
 
-	-- Add v3 and detach it
+	-- Add v3
 	local v3 = container:add(MockView())
 	v3.layout_box:setWidth(50)
 	v3.layout_box:setHeight(50)
@@ -207,7 +200,7 @@ function test.layout_update_on_removal(t)
 	local x3, y3 = v3.transform.love_transform:transformPoint(0, 0)
 	t:eq(x3, 50)
 
-	v2:detach()
+	v2:kill()
 	engine:update(0.016, 0, 0)
 
 	-- v3 should move to (0, 0)
@@ -223,6 +216,7 @@ function test.arranges(t)
 	engine:load()
 
 	engine.root.layout_box:setDimensions(1000, 1000)
+	engine.root.layout_box:setAlignItems(LayoutBox.AlignItems.Start)
 
 	local container = engine.root:add(MockView())
 	container.layout_box:setArrange(LayoutBox.Arrange.FlexCol)

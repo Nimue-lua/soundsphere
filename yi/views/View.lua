@@ -1,6 +1,7 @@
 local Node = require("ui.Node")
 local LayoutEnums = require("ui.layout.Enums")
 local Transform = require("yi.Transform")
+local table_util = require("table_util")
 local Arrange = LayoutEnums.Arrange
 local JustifyContent = LayoutEnums.JustifyContent
 local AlignItems = LayoutEnums.AlignItems
@@ -39,6 +40,7 @@ local State = View.State
 function View:new()
 	Node.new(self)
 	self.visible = true
+	self.just_changed_visibility = false
 	self.hidden_children = {}
 	self.state = State.AwaitsMount
 	self.transform = Transform()
@@ -57,6 +59,14 @@ function View:mount(ctx)
 			v:mount(ctx)
 		end
 	end
+
+	local h = self.hidden_children
+	for i = 1, #h do
+		local v = h[i]
+		if v.state == State.AwaitsMount then
+			v:mount(ctx)
+		end
+	end
 end
 
 ---@generic T: yi.View
@@ -69,6 +79,12 @@ function View:add(view, params)
 
 	if params then
 		view:setup(params)
+	end
+
+	if not view.visible then
+		local idx = table_util.indexof(self.children, view)
+		table.remove(self.children, idx)
+		table.insert(self.hidden_children, idx)
 	end
 
 	if self.ctx and view.state == State.AwaitsMount then
@@ -108,6 +124,41 @@ function View:loadComplete() end
 function View:destroy()
 	Node.destroy(self)
 	self.state = State.Destoryed
+end
+
+---@param v boolean
+function View:setVisible(v)
+	if self.visible == v then
+		return
+	end
+
+	self.visible = v
+	local p = self.parent
+
+	if not p then
+		-- Should only happen to the root or this:
+		-- local v = View()
+		-- v:setup({visible = false})
+		-- parent:add(v) should take care of this
+		return
+	end
+
+	if not v then
+		local idx = table_util.indexof(p.children, self)
+		if idx then
+			table.remove(p.children, idx)
+			table.insert(p.hidden_children, self)
+		end
+	else
+		local idx = table_util.indexof(p.hidden_children, self)
+		if idx then
+			table.remove(p.hidden_children, idx)
+			table.insert(p.children, self)
+		end
+	end
+
+	p.layout_box:markDirty(LayoutEnums.Axis.Both)
+	self.just_changed_visibility = true
 end
 
 ---@param dt number
@@ -450,7 +501,7 @@ View.Setters = {
 	corner_radius = true,
 	stencil = true,
 	id = true,
-	visible = true,
+	visible = View.setVisible,
 	mouse = function(self, v) self.handles_mouse_input = v end,
 	keyboard = function(self, v) self.handles_keyboard_input = v end
 }
