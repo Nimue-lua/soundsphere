@@ -14,6 +14,7 @@ local AlignItems = LayoutEnums.AlignItems
 ---@field id string?
 ---@field parent yi.View
 ---@field children yi.View[]
+---@field hidden_children yi.View[] Invisible children excluded from rendering and layout
 ---@field draw? fun(self: yi.View)
 ---@field color yi.Color?
 ---@field blend_mode yi.BlendMode?
@@ -29,15 +30,16 @@ View.State = {
 	AwaitsMount = 1,
 	Loaded = 2,
 	Active = 3,
-	Detached = 4,
-	Killed = 5,
-	Destoryed = 6
+	Killed = 4,
+	Destoryed = 5
 }
 
 local State = View.State
 
 function View:new()
 	Node.new(self)
+	self.visible = true
+	self.hidden_children = {}
 	self.state = State.AwaitsMount
 	self.transform = Transform()
 end
@@ -132,19 +134,6 @@ end
 
 function View:kill()
 	self.state = State.Killed
-end
-
-function View:detach()
-	if self.state == State.Active then
-		self.state = State.Detached
-	else
-		error("Can't detach not active view")
-	end
-end
-
----@param view yi.View
-function View:attach(view)
-	table.insert(self.children, view)
 end
 
 ---@return yi.Context
@@ -461,6 +450,7 @@ View.Setters = {
 	corner_radius = true,
 	stencil = true,
 	id = true,
+	visible = true,
 	mouse = function(self, v) self.handles_mouse_input = v end,
 	keyboard = function(self, v) self.handles_keyboard_input = v end
 }

@@ -8,6 +8,7 @@ local Cell = require("yi.views.Select.Cell")
 local Tag = require("yi.views.Select.Tag")
 local Colors = require("yi.Colors")
 local ChartGrid = require("yi.views.Select.ChartGrid")
+local TabContainer = require("yi.views.TabContainer")
 local h = require("yi.h")
 
 local ImGuiSettings = require("ui.views.SettingsView")
@@ -83,7 +84,21 @@ function Select:load()
 	self.chart_grid = ChartGrid()
 	self.tags = View()
 
-	local gradient = love.graphics.newImage("yi/assets/gradient.png")
+	local overview_tab = {
+		icon = Label(res:getFont("icons", 16), ""),
+		text = Label(res:getFont("bold", 16), "Overview"),
+		content = h(View(), {background_color = {1, 0, 0, 1}, w = 100, h = 100})
+	}
+
+	local scores_tab = {
+		icon = Label(res:getFont("icons", 16), ""),
+		text = Label(res:getFont("bold", 16), "Scores"),
+		content = h(View(), {background_color = {0, 1, 0, 1}, w = 100, h = 100})
+	}
+
+	local tab_container = TabContainer({overview_tab, scores_tab})
+
+	local gradient = love.graphics.newImage("resources/gradient.png")
 
 	self:addArray({
 		h(Image(gradient), {w = "100%", h = "100%", color = {0, 0, 0, 0.8}}),
@@ -107,6 +122,7 @@ function Select:load()
 				h(self.chart_grid, {w = "110%", h = 70}),
 				h(self.tags, {arrange = "flex_row", gap = 10})
 			}),
+			h(tab_container, {w = "100%", h = 200}),
 			h(View(), {arrange = "flex_row", align_items = "stretch", gap = 10}, {
 				h(Button(open_config), small_button, {
 					Label(res:getFont("icons", 24), ""),
@@ -238,7 +254,6 @@ function Select:updateChartview()
 	self.duration_cell:setValueText(("%i:%02i"):format(minutes, seconds))
 
 	self.notes_cell:setValueText(tostring(chartview.notes_count))
-	
 
 	for _, v in ipairs(self.tags.children) do
 		v:kill()

@@ -1,8 +1,8 @@
 local View = require("yi.views.View")
-local Menu = require("yi.views.Menu")
-local Select = require("yi.views.Select")
-local Gameplay = require("yi.views.Gameplay")
-local Result = require("yi.views.Result")
+local Menu = require("yi.views.menu.Menu")
+local Select = require("yi.views.select.Select")
+local Gameplay = require("yi.views.gameplay.Gameplay")
+local Result = require("yi.views.result.Result")
 
 ---@class yi.Screens : yi.View
 ---@overload fun(): yi.Screens
