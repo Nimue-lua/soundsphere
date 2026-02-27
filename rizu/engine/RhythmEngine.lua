@@ -91,11 +91,15 @@ function RhythmEngine:hasResult()
 		accuracy < math.huge
 end
 
-function RhythmEngine:unload()
+function RhythmEngine:unloadAudio()
 	if self.audio_engine then
 		self.audio_engine:unload()
-		self.audio_engine = nil
 	end
+end
+
+function RhythmEngine:unload()
+	self:unloadAudio()
+	self.audio_engine = nil
 
 	self.visual_engine = nil
 	self.logic_engine = nil
@@ -118,11 +122,13 @@ function RhythmEngine:syncTime()
 	self.visual_info.time = self.time_engine.time - self.visual_offset
 end
 
-function RhythmEngine:play()
+---@param pending_resync boolean?
+function RhythmEngine:play(pending_resync)
 	self.time_engine:play()
 	self.audio_engine:play()
 	self.input_engine:resume()
 	self.pause_counter:play(self.time_engine.time)
+	self.pending_resync = pending_resync
 end
 
 function RhythmEngine:pause()
@@ -130,6 +136,7 @@ function RhythmEngine:pause()
 	self.audio_engine:pause()
 	self.input_engine:pause()
 	self.pause_counter:pause()
+	self.pending_resync = false
 end
 
 ---@param event rizu.VirtualInputEvent
@@ -207,7 +214,15 @@ end
 
 ---@param time number
 function RhythmEngine:setGlobalTime(time)
+	if not self.pending_resync then
+		self.time_engine:setGlobalTime(time)
+		return
+	end
+
+	self.pending_resync = false
+	self.time_engine:pause()
 	self.time_engine:setGlobalTime(time)
+	self.time_engine:play()
 end
 
 ---@param adjust_factor number
@@ -283,6 +298,7 @@ end
 ---@param audio_mode {primary: string, secondary: string}
 function RhythmEngine:setAudioMode(audio_mode)
 	self.audio_mode = audio_mode
+	self.audio_engine:setAudioMode(audio_mode)
 end
 
 ---@param wind_up string
