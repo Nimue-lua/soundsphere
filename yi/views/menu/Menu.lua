@@ -35,6 +35,8 @@ function Menu:onKeyDown(e)
 
 	if k == "return" then
 		self.parent:set("select")
+	elseif k == "t" then
+		self.parent:set("test")
 	end
 end
 

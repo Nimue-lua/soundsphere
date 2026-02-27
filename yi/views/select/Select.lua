@@ -8,7 +8,7 @@ local Cell = require("yi.views.select.Cell")
 local Tag = require("yi.views.select.Tag")
 local Colors = require("yi.Colors")
 local ChartGrid = require("yi.views.select.ChartGrid")
-local TabContainer = require("yi.views.TabContainer")
+local TabContainer = require("yi.views.components.TabContainer")
 local h = require("yi.h")
 
 local ImGuiSettings = require("ui.views.SettingsView")
@@ -25,9 +25,7 @@ local info_side = {
 	w = "70%",
 	h = "100%",
 	padding = {20, 20, 20, 20},
-	justify_content = "space_between",
 	arrange = "flex_col",
-	align_items = "stretch",
 	gap = 20,
 	stencil = true
 }
@@ -103,13 +101,13 @@ function Select:load()
 	self:addArray({
 		h(Image(gradient), {w = "100%", h = "100%", color = {0, 0, 0, 0.8}}),
 		h(View(), info_side, {
-			h(View(), {arrange = "flex_col", gap = 15}, {
+			h(View(), {w = "100%", arrange = "flex_col", gap = 15}, {
 				h(View(), {arrange = "flex_row", gap = 10}, {
 					self.ranked_tag,
 					self.chart_format_tag
 				}),
-				h(View(), {arrange = "flex_col", width = "99999%"}, {
-					self.title,
+				h(View(), {arrange = "flex_col", w = 999999}, {
+					h(self.title),
 					h(self.artist, {y = -5, color = Colors.lines}),
 				}),
 				h(View(), {arrange = "flex_row", gap = 10}, {
@@ -119,31 +117,31 @@ function Select:load()
 					self.duration_cell,
 					self.notes_cell
 				}),
-				h(self.chart_grid, {w = "110%", h = 70}),
+				h(self.chart_grid, {w = "100%", h = 70}),
 				h(self.tags, {arrange = "flex_row", gap = 10})
 			}),
-			h(View(), {arrange = "flex_col", grow = 1, gap = 10}, {
-				h(tab_container, {w = "100%", grow = 1}),
+			h(tab_container, {w = "100%", grow = 1}),
+			h(View(), {arrange = "flex_col", gap = 10}, {
 				h(View(), {arrange = "flex_row", gap = 10}, {
 					h(Button(open_config), small_button, {
 						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "CONFIG"),
+						h(Label(res:getFont("bold", 16), "CONFIG"), {align = "center"}),
 					}),
 					h(Button(open_mods), small_button, {
 						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "MODS"),
+						h(Label(res:getFont("bold", 16), "MODS"), {align = "center"}),
 					}),
 					h(Button(open_inputs), small_button, {
 						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "INPUTS"),
+						h(Label(res:getFont("bold", 16), "INPUTS"), {align = "center"}),
 					}),
 					h(Button(open_skins), small_button, {
 						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "SKINS"),
+						h(Label(res:getFont("bold", 16), "SKINS"), {align = "center"}),
 					}),
 					h(Button(open_gameplay), small_button, {
 						Label(res:getFont("icons", 24), ""),
-						Label(res:getFont("bold", 16), "GAMEPLAY"),
+						h(Label(res:getFont("bold", 16), "GAMEPLAY"), {align = "center"}),
 					}),
 					h(Button(play), {grow = 1, shrink = 10, min_w = 130}, {
 						h(View(), play_button_inner, {
@@ -154,7 +152,9 @@ function Select:load()
 				})
 			}),
 		}),
-		h(self.chart_set_list, {w = "30%", h = "100%", pivot = "top_right"})
+		h(View(), {w = "30%", h = "100%", arrange = "flex_col", align_self = "end"}, {
+			h(self.chart_set_list, {grow = 1})
+		})
 	})
 end
 

@@ -302,9 +302,9 @@ function View:setMaxHeight(v)
 	self.layout_box:setMaxHeight(v)
 end
 
----@param v "absolute" | "flex_row" | "flex_col" | "grid"
+---@param v "absolute" | "flex_row" | "flex_col" | "wrap_row" | "wrap_col" | "stack"
 function View:setArrange(v)
-	local arrange = Arrange.Absolute
+	local arrange = Arrange.Stack
 
 	if v == "absolute" then
 		arrange = Arrange.Absolute
@@ -312,8 +312,12 @@ function View:setArrange(v)
 		arrange = Arrange.FlexRow
 	elseif v == "flex_col" then
 		arrange = Arrange.FlexCol
-	elseif v == "grid" then
-		arrange = Arrange.Grid
+	elseif v == "wrap_row" then
+		arrange = Arrange.WrapRow
+	elseif v == "wrap_col" then
+		arrange = Arrange.WrapCol
+	elseif v == "stack" then
+		arrange = Arrange.Stack
 	end
 
 	self.layout_box:setArrange(arrange)
@@ -327,6 +331,11 @@ end
 ---@param v number
 function View:setChildGap(v)
 	self.layout_box:setChildGap(v)
+end
+
+---@param v number
+function View:setLineGap(v)
+	self.layout_box:setLineGap(v)
 end
 
 ---@param str string
@@ -354,6 +363,24 @@ function View:setAlignSelf(v)
 		return
 	end
 	self.layout_box:setAlignSelf(str_to_align(v))
+end
+
+---@param v ("start" | "center" | "end" | "space_between")?
+function View:setJustifySelf(v)
+	if not v then
+		self.layout_box:setJustifySelf(nil)
+		return
+	end
+
+	local j = JustifyContent.Start
+	if v == "center" then
+		j = JustifyContent.Center
+	elseif v == "end" then
+		j = JustifyContent.End
+	elseif v == "space_between" then
+		j = JustifyContent.SpaceBetween
+	end
+	self.layout_box:setJustifySelf(j)
 end
 
 ---@param v "start" | "center" | "end" | "space_between"
@@ -496,9 +523,11 @@ View.Setters = {
 	-- Flex
 	reversed = View.setReversed,
 	gap = View.setChildGap,
+	line_gap = View.setLineGap,
 	align_items = View.setAlignItems,
 	align_self = View.setAlignSelf,
 	justify_content = View.setJustifyContent,
+	justify_self = View.setJustifySelf,
 	grow = View.setGrow,
 
 	-- View
@@ -511,7 +540,8 @@ View.Setters = {
 	id = true,
 	enabled = View.setEnabled,
 	mouse = function(self, v) self.handles_mouse_input = v end,
-	keyboard = function(self, v) self.handles_keyboard_input = v end
+	keyboard = function(self, v) self.handles_keyboard_input = v end,
+	align = function(self, v) if self.setAlign then self:setAlign(v) end end
 }
 
 return View

@@ -1,5 +1,5 @@
 local View = require("yi.views.View")
-local TabButton = require("yi.views.TabButton")
+local TabButton = require("yi.views.components.TabButton")
 local Colors = require("yi.Colors")
 
 ---@class yi.Tabs
